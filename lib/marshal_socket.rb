@@ -5,9 +5,9 @@ require 'socket'
 module MarshalSocket
 
   module Socket
-    def dump(msg_type, obj)
+    def dump(obj)
       write_lock.synchronize do
-        Marshal.dump([msg_type.to_sym, obj], self)
+        Marshal.dump([:obj, obj], self)
       end
     end
 
@@ -19,7 +19,7 @@ module MarshalSocket
 
     def bye
       write_lock.synchronize do
-        Marshal.dump(:bye, self)
+        Marshal.dump([:bye], self)
       end
     end
 
@@ -31,19 +31,29 @@ module MarshalSocket
       @read_lock = Mutex.new
     end
 
-    def start(&block)
-      Thread.new do
-        run = true
-        while run do
-          obj = load
-          if obj == :bye
-            run = false
-            close
-          else
-            block.call(obj)
-          end
+    def receive_objects(&block)
+      run = true
+
+      while run do
+        begin
+          msg_type, obj = load
+        rescue EOFError
+          run = false
+          next
         end
+
+        case msg_type
+        when :bye
+          run = false
+          close
+        when :obj
+          block.call(self, obj)
+        else
+          $stderr.puts "unknown message type #{msg_type.inspect}"
+        end
+
       end
+
     end
   end
 
