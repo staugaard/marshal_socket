@@ -8,11 +8,11 @@ Gem::Specification.new do |gem|
   gem.version       = MarshalSocket::VERSION
   gem.authors       = ['Mick Staugaard']
   gem.email         = ['mick@staugaard.com']
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = 'A dead simple way to pass ruby object on a socket'
+  gem.summary       = 'A dead simple way to pass ruby object on a socket'
   gem.homepage      = ''
 
-  gem.files         = `git ls-files`.split($/)
+  gem.files         = Dir.glob('{lib,test}/**/*') + ['README.md']
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
